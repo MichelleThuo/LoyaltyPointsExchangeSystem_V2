@@ -1,0 +1,11 @@
+{
+  "name": "loyalty-points-exchange-system-v2",
+  "version": "1.0.0",
+  "description": "Loyalty points exchange web app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michelle Thuo",
+  "license": "ISC"
+}
