@@ -1,73 +1,40 @@
-import Debug "mo:base/Debug";
-import Trie "mo:base/Trie";
+import Nat "mo:base/Nat";
 
-// Comparison function for Text keys
-func textCompare(a: Text, b: Text): Bool {
-    return a == b;
-}
+actor LoyaltyPoints {
+    // Stores the points for each user
+    var userPoints : TrieMap.Text<Nat> = TrieMap.Text<Nat>();
 
-// Define the two types of points
-type BongaPoints = Nat;
-type NaivasLoyaltyPoints = Nat;
+    // Function to add points to a user
+    public func addPoints(userId: Text, points: Nat) : async Text {
+        let currentPoints = switch (userPoints.get(userId)) {
+            case (null) { 0 };
+            case (?value) { value };
+        };
+        let newPoints = currentPoints + points;
+        userPoints.put(userId, newPoints);
+        return "Points added successfully";
+    };
 
-// Define a User with a balance of each type of points
-type User = {
-    id: Text;
-    bongaPoints: BongaPoints;
-    naivasLoyaltyPoints: NaivasLoyaltyPoints;
+    // Function to spend points from a user
+    public func spendPoints(userId: Text, points: Nat) : async Text {
+        let currentPoints = switch (userPoints.get(userId)) {
+            case (null) { 0 };
+            case (?value) { value };
+        };
+        if (currentPoints < points) {
+            return "Insufficient points";
+        } else {
+            let newPoints = currentPoints - points;
+            userPoints.put(userId, newPoints);
+            return "Points spent successfully";
+        };
+    };
+
+    // Function to check points of a user
+    public func checkPoints(userId: Text) : async Nat {
+        switch (userPoints.get(userId)) {
+            case (null) { 0 };
+            case (?value) { value };
+        }
+    };
 };
-
-actor LoyaltyExchange {
-
-    // Persistent storage of users in a Trie map
-    stable var users : Trie.Trie<Text, User> = Trie.empty(textCompare);
-
-    // Initialize two users
-    public func initializeUsers() : async () {
-        users := Trie.put(users, "User1", { id = "User1"; bongaPoints = 1000; naivasLoyaltyPoints = 500 }, textCompare);
-        users := Trie.put(users, "User2", { id = "User2"; bongaPoints = 750; naivasLoyaltyPoints = 1200 }, textCompare);
-    };
-
-    // Function to transfer BongaPoints between users
-    public func transferBongaPoints(fromId: Text, toId: Text, amount: BongaPoints): async () {
-        switch (Trie.find(users, fromId, textCompare)) {
-            case (?fromUser) {
-                if (fromUser.bongaPoints >= amount) {
-                    switch (Trie.find(users, toId, textCompare)) {
-                        case (?toUser) {
-                            users := Trie.put(users, fromId, { fromUser with bongaPoints = fromUser.bongaPoints - amount }, textCompare);
-                            users := Trie.put(users, toId, { toUser with bongaPoints = toUser.bongaPoints + amount }, textCompare);
-                            Debug.print("BongaPoints Transfer Successful");
-                        };
-                    };
-                } else {
-                    Debug.print("Insufficient BongaPoints");
-                };
-            };
-        };
-    };
-
-    // Function to transfer NaivasLoyaltyPoints between users
-    public func transferNaivasLoyaltyPoints(fromId: Text, toId: Text, amount: NaivasLoyaltyPoints): async () {
-        switch (Trie.find(users, fromId, textCompare)) {
-            case (?fromUser) {
-                if (fromUser.naivasLoyaltyPoints >= amount) {
-                    switch (Trie.find(users, toId, textCompare)) {
-                        case (?toUser) {
-                            users := Trie.put(users, fromId, { fromUser with naivasLoyaltyPoints = fromUser.naivasLoyaltyPoints - amount }, textCompare);
-                            users := Trie.put(users, toId, { toUser with naivasLoyaltyPoints = toUser.naivasLoyaltyPoints + amount }, textCompare);
-                            Debug.print("NaivasLoyaltyPoints Transfer Successful");
-                        };
-                    };
-                } else {
-                    Debug.print("Insufficient NaivasLoyaltyPoints");
-                };
-            };
-        };
-    };
-
-    // Function to retrieve a user's point balances
-    public func getUser(id: Text): async ?User {
-        return Trie.find(users, id, textCompare);
-    };
-}
