@@ -1,8 +1,9 @@
 import Debug "mo:base/Debug";
+import Trie "mo:base/Trie";
 
 actor LoyaltyExchange {
 
-    // Persistent storage of users in a map
+    // Persistent storage of users in a Trie map
     stable var users : Trie.Trie<Text, User> = Trie.empty();
 
     // Define the two types of points
@@ -17,18 +18,20 @@ actor LoyaltyExchange {
     };
 
     // Initialize two users
-    users.put("User1", { id = "User1"; bongaPoints = 1000; naivasLoyaltyPoints = 500 });
-    users.put("User2", { id = "User2"; bongaPoints = 750; naivasLoyaltyPoints = 1200 });
+    public func initializeUsers() : async () {
+        users := Trie.put(users, "User1", { id = "User1"; bongaPoints = 1000; naivasLoyaltyPoints = 500 });
+        users := Trie.put(users, "User2", { id = "User2"; bongaPoints = 750; naivasLoyaltyPoints = 1200 });
+    };
 
     // Function to transfer BongaPoints between users
     public func transferBongaPoints(fromId: Text, toId: Text, amount: BongaPoints): async () {
-        switch (users.get(fromId)) {
+        switch (Trie.find(users, fromId)) {
             case (?fromUser) {
                 if (fromUser.bongaPoints >= amount) {
-                    switch (users.get(toId)) {
+                    switch (Trie.find(users, toId)) {
                         case (?toUser) {
-                            users.put(fromId, { fromUser with bongaPoints = fromUser.bongaPoints - amount });
-                            users.put(toId, { toUser with bongaPoints = toUser.bongaPoints + amount });
+                            users := Trie.put(users, fromId, { fromUser with bongaPoints = fromUser.bongaPoints - amount });
+                            users := Trie.put(users, toId, { toUser with bongaPoints = toUser.bongaPoints + amount });
                             Debug.print("BongaPoints Transfer Successful");
                         };
                     };
@@ -41,13 +44,13 @@ actor LoyaltyExchange {
 
     // Function to transfer NaivasLoyaltyPoints between users
     public func transferNaivasLoyaltyPoints(fromId: Text, toId: Text, amount: NaivasLoyaltyPoints): async () {
-        switch (users.get(fromId)) {
+        switch (Trie.find(users, fromId)) {
             case (?fromUser) {
                 if (fromUser.naivasLoyaltyPoints >= amount) {
-                    switch (users.get(toId)) {
+                    switch (Trie.find(users, toId)) {
                         case (?toUser) {
-                            users.put(fromId, { fromUser with naivasLoyaltyPoints = fromUser.naivasLoyaltyPoints - amount });
-                            users.put(toId, { toUser with naivasLoyaltyPoints = toUser.naivasLoyaltyPoints + amount });
+                            users := Trie.put(users, fromId, { fromUser with naivasLoyaltyPoints = fromUser.naivasLoyaltyPoints - amount });
+                            users := Trie.put(users, toId, { toUser with naivasLoyaltyPoints = toUser.naivasLoyaltyPoints + amount });
                             Debug.print("NaivasLoyaltyPoints Transfer Successful");
                         };
                     };
@@ -60,6 +63,6 @@ actor LoyaltyExchange {
 
     // Function to retrieve a user's point balances
     public func getUser(id: Text): async ?User {
-        return users.get(id);
+        return Trie.find(users, id);
     };
 }
