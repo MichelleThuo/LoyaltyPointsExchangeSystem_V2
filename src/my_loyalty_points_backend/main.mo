@@ -1,8 +1,8 @@
-import Nat "mo:base/Nat";
+import Map "mo:base/Map";
 
 actor LoyaltyPoints {
     // Stores the points for each user
-    var userPoints : TrieMap.Text<Nat> = TrieMap.Text<Nat>();
+    var userPoints : Map.Map<Text, Nat> = Map.empty<Text, Nat>();
 
     // Function to add points to a user
     public func addPoints(userId: Text, points: Nat) : async Text {
