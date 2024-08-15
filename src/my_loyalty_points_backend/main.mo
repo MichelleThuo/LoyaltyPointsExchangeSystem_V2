@@ -7,7 +7,7 @@ actor LoyaltyPoints {
     public func issueBongaPoints(to : principal, amount : nat64) : async Result<(), Text> {
         let index = indexOf(points, to);
         if (index == null) {
-            points := [*(points), (to, (amount, 0))];
+            points := Array.append(points, [(to, (amount, 0))]);
         } else {
             let currentPoints = points[index].1;
             let newBongaPoints = currentPoints.0 + amount;
@@ -19,7 +19,7 @@ actor LoyaltyPoints {
     public func issueNaivasLoyaltyPoints(to : principal, amount : nat64) : async Result<(), Text> {
         let index = indexOf(points, to);
         if (index == null) {
-            points := [*(points), (to, (0, amount))];
+            points := Array.append(points, [(to, (0, amount))]);
         } else {
             let currentPoints = points[index].1;
             let newNaivasPoints = currentPoints.1 + amount;
@@ -27,6 +27,7 @@ actor LoyaltyPoints {
         }
         return Result.Ok(());
     };
+
 
     public func redeemBongaPoints(from : principal, amount : nat64) : async Result<(), Text> {
         let index = indexOf(points, from);
