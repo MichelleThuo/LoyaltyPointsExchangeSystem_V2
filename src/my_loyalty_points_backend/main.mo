@@ -1,71 +1,65 @@
-actor LoyaltyPoints {
-    var points : [(principal, (nat64, nat64))] = [
-        (principal "user1", (1000, 500)),
-        (principal "user2", (800, 700))
-    ];
+import Debug "mo:base/Debug";
 
-    public func issueBongaPoints(to : principal, amount : nat64) : async Result<(), Text> {
-        let index = indexOf(points, to);
-        if (index == null) {
-            points := Array.append(points, [(to, (amount, 0))]);
-        } else {
-            let currentPoints = points[index].1;
-            let newBongaPoints = currentPoints.0 + amount;
-            points := replaceAt(points, index, (to, (newBongaPoints, currentPoints.1)));
-        }
-        return Result.Ok(());
-    }
+actor LoyaltyExchange {
 
-    public func issueNaivasLoyaltyPoints(to : principal, amount : nat64) : async Result<(), Text> {
-        let index = indexOf(points, to);
-        if (index == null) {
-            points := Array.append(points, [(to, (0, amount))]);
-        } else {
-            let currentPoints = points[index].1;
-            let newNaivasPoints = currentPoints.1 + amount;
-            points := replaceAt(points, index, (to, (currentPoints.0, newNaivasPoints)));
-        }
-        return Result.Ok(());
-    }
+    // Persistent storage of users in a map
+    stable var users : Trie.Trie<Text, User> = Trie.empty();
 
-    public func redeemBongaPoints(from : principal, amount : nat64) : async Result<(), Text> {
-        let index = indexOf(points, from);
-        if (index == null) {
-            return Result.Err("User not found");
-        }
+    // Define the two types of points
+    type BongaPoints = Nat;
+    type NaivasLoyaltyPoints = Nat;
 
-        let currentPoints = points[index].1;
-        if (currentPoints.0 < amount) {
-            return Result.Err("Insufficient BongaPoints");
-        }
+    // Define a User with a balance of each type of points
+    type User = {
+        id: Text;
+        bongaPoints: BongaPoints;
+        naivasLoyaltyPoints: NaivasLoyaltyPoints;
+    };
 
-        let newBongaPoints = currentPoints.0 - amount;
-        points := replaceAt(points, index, (from, (newBongaPoints, currentPoints.1)));
-        return Result.Ok(());
-    }
+    // Initialize two users
+    users.put("User1", { id = "User1"; bongaPoints = 1000; naivasLoyaltyPoints = 500 });
+    users.put("User2", { id = "User2"; bongaPoints = 750; naivasLoyaltyPoints = 1200 });
 
-    public func redeemNaivasLoyaltyPoints(from : principal, amount : nat64) : async Result<(), Text> {
-        let index = indexOf(points, from);
-        if (index == null) {
-            return Result.Err("User not found");
-        }
+    // Function to transfer BongaPoints between users
+    public func transferBongaPoints(fromId: Text, toId: Text, amount: BongaPoints): async () {
+        switch (users.get(fromId)) {
+            case (?fromUser) {
+                if (fromUser.bongaPoints >= amount) {
+                    switch (users.get(toId)) {
+                        case (?toUser) {
+                            users.put(fromId, { fromUser with bongaPoints = fromUser.bongaPoints - amount });
+                            users.put(toId, { toUser with bongaPoints = toUser.bongaPoints + amount });
+                            Debug.print("BongaPoints Transfer Successful");
+                        };
+                    };
+                } else {
+                    Debug.print("Insufficient BongaPoints");
+                };
+            };
+        };
+    };
 
-        let currentPoints = points[index].1;
-        if (currentPoints.1 < amount) {
-            return Result.Err("Insufficient Naivas Loyalty Points");
-        }
+    // Function to transfer NaivasLoyaltyPoints between users
+    public func transferNaivasLoyaltyPoints(fromId: Text, toId: Text, amount: NaivasLoyaltyPoints): async () {
+        switch (users.get(fromId)) {
+            case (?fromUser) {
+                if (fromUser.naivasLoyaltyPoints >= amount) {
+                    switch (users.get(toId)) {
+                        case (?toUser) {
+                            users.put(fromId, { fromUser with naivasLoyaltyPoints = fromUser.naivasLoyaltyPoints - amount });
+                            users.put(toId, { toUser with naivasLoyaltyPoints = toUser.naivasLoyaltyPoints + amount });
+                            Debug.print("NaivasLoyaltyPoints Transfer Successful");
+                        };
+                    };
+                } else {
+                    Debug.print("Insufficient NaivasLoyaltyPoints");
+                };
+            };
+        };
+    };
 
-        let newNaivasPoints = currentPoints.1 - amount;
-        points := replaceAt(points, index, (from, (currentPoints.0, newNaivasPoints)));
-        return Result.Ok(());
-    }
-
-    public func getPoints(for : principal) : async ?(nat64, nat64) {
-        let index = indexOf(points, `for`);
-        if (index != null) {
-            return ?points[index].1;
-        } else {
-            return null;
-        }
-    }
-};
+    // Function to retrieve a user's point balances
+    public func getUser(id: Text): async ?User {
+        return users.get(id);
+    };
+}
