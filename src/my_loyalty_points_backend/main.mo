@@ -68,4 +68,4 @@ actor LoyaltyPoints {
             return null;
         }
     }
-}
+};
