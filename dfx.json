@@ -1,28 +1,15 @@
-{
-  "canisters": {
-    "my_loyalty_points_backend": {
-      "main": "src/my_loyalty_points_backend/main.mo",
-      "type": "motoko"
-    }
-  },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    }
-  },
-  "output_env_file": ".env",
-  "version": 1,
-  "networks": {
-    "local": {
-      "provider": "local"
-    },
-    "ic": {
-      "provider": "https://ic-api.internetcomputer.org"
-    },
-    "ic-testnet": {
-      "provider": "https://ic-api.internetcomputer.org/canister/aaaxy-baaaa-aaaab-aaaaa-caaaa-aaaaa-ca" // Actual testnet canister ID
-    }
-  },
-  "defaultNetwork": "ic-testnet"
+"canisters": {
+    "my_loyalty_points_backend": {
+      "main": "src/my_loyalty_points_backend/main.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
 }
