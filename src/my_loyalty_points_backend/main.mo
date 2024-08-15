@@ -6,21 +6,21 @@ func textCompare(a: Text, b: Text): Bool {
     return a == b;
 }
 
+// Define the two types of points
+type BongaPoints = Nat;
+type NaivasLoyaltyPoints = Nat;
+
+// Define a User with a balance of each type of points
+type User = {
+    id: Text;
+    bongaPoints: BongaPoints;
+    naivasLoyaltyPoints: NaivasLoyaltyPoints;
+};
+
 actor LoyaltyExchange {
 
     // Persistent storage of users in a Trie map
     stable var users : Trie.Trie<Text, User> = Trie.empty(textCompare);
-
-    // Define the two types of points
-    type BongaPoints = Nat;
-    type NaivasLoyaltyPoints = Nat;
-
-    // Define a User with a balance of each type of points
-    type User = {
-        id: Text;
-        bongaPoints: BongaPoints;
-        naivasLoyaltyPoints: NaivasLoyaltyPoints;
-    };
 
     // Initialize two users
     public func initializeUsers() : async () {
