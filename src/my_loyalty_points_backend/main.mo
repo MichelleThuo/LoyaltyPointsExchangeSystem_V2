@@ -1,5 +1,5 @@
 actor LoyaltyPoints {
-    var points : []{principal, [nat64, nat64]} = [
+    var points : [(principal, (nat64, nat64))] = [
         (principal "user1", (1000, 500)),
         (principal "user2", (800, 700))
     ];
