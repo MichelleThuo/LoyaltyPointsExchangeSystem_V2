@@ -1,15 +1,16 @@
-"canisters": {
-    "my_loyalty_points_backend": {
-      "main": "src/my_loyalty_points_backend/main.mo",
-      "type": "motoko"
-    }
-  },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    }
-  },
-  "output_env_file": ".env",
-  "version": 1
+{
+  "canisters": {
+    "my_loyalty_points_backend": {
+      "main": "src/my_loyalty_points_backend/main.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
 }
